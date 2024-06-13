@@ -1,0 +1,110 @@
+version: '3.9'
+
+services:
+  client:
+    build: ./client
+    ports:
+      - '3000:3000'
+    depends_on:
+      - server
+    environment:
+      - REACT_APP_API_URL=http://server:5001
+    networks:
+      - task-scheduler-network
+
+  server:
+    build: ./server
+    ports:
+      - '5001:5001'
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=task_schedular
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    networks:
+      - task-scheduler-network
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: task_schedular
+    volumes:
+      - /var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - task-scheduler-network
+    
+  redis:
+    image: redis:latest
+    ports:
+      - '6379:6379'
+    networks:
+      - task-scheduler-network
+
+volumes:
+  postgres-data:
+
+networks:
+  task-scheduler-network:
+
+
+# version: '3.9'
+
+# services:
+#   client:
+#     build: ./client
+#     ports:
+#       - '3000:3000'
+#     depends_on:
+#       - server
+#     environment:
+#       - REACT_APP_API_URL=http://server:5001
+#     networks:
+#       - task-scheduler-network
+
+#   server:
+#     build: ./server
+#     ports:
+#       - '5001:5001'
+#     depends_on:
+#       - db
+#       - redis
+#     env_file:
+#       - ./server/.env
+#     networks:
+#       - task-scheduler-network
+
+#   db:
+#     image: postgres:latest
+#     env_file:
+#       - ./server/.env
+#     volumes:
+#       - postgres-data:/var/lib/postgresql/data
+#     ports:
+#       - '5432:5432'
+#     networks:
+#       - task-scheduler-network
+    
+#   redis:
+#     image: redis:latest
+#     env_file:
+#       - ./server/.env
+#     ports:
+#       - '6379:6379'
+#     networks:
+#       - task-scheduler-network
+
+# volumes:
+#   postgres-data:
+
+# networks:
+#   task-scheduler-network:
